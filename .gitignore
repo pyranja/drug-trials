@@ -1,0 +1,14 @@
+# mvn #
+target/
+
+# vagrant #
+.vagrant
+
+# intellij #
+.idea/
+*.iml
+
+# eclipse #
+.settings/
+.project
+.classpath

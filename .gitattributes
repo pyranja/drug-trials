@@ -1,0 +1,17 @@
+# force git to use lf as default:
+# git config --system core.autocrlf false 
+# git config --global core.eol lf
+#
+# enable git auto handling
+* text=auto
+
+# force endings for some platform specific files
+*.sh    eol=lf
+*.xml   eol=lf
+*.json  eol=lf
+*.cfg   eol=lf
+*.md    eol=lf
+*.sql   eol=lf
+
+*.ps1   eol=crlf
+*.bat   eol=crlf
