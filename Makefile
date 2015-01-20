@@ -12,6 +12,8 @@ clean:
 init:
 	-mkdir target
 
+all: clean import convert package
+
 package: clinicaltrials ttd drugbank
 	tar -czvf ./target/drug-trials.tgz --directory=./target drug-trials/
 
@@ -21,11 +23,11 @@ clinicaltrials ttd drugbank: init
 	mysqldump --user=${mysql_user} --password=${mysql_password} --result-file=./target/drug-trials/$@.sql --complete-insert --single-transaction --databases $@
 
 convert:
-	cat ./sql/*.migrate.sql | mysql -user=${mysql_user} --password=${mysql_password}
+	cat ./sql/*.migrate.sql | mysql --user=${mysql_user} --password=${mysql_password}
 
 import: target/emergentec
-	cat ./target/emergentec/*.sql | mysql -user=${mysql_user} --password=${mysql_password}
-	cat ./sql/move-emergentec.sql | mysql -user=${mysql_user} --password=${mysql_password}
+	cat ./target/emergentec/*.sql | mysql --user=${mysql_user} --password=${mysql_password}
+	cat ./sql/move-emergentec.sql | mysql --user=${mysql_user} --password=${mysql_password}
 
 target/emergentec: target/emergentec.tar.gz
 	tar -xzvf ./target/emergentec.tar.gz --directory=./target
