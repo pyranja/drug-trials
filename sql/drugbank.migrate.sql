@@ -1,6 +1,6 @@
 -- drugbank.ca database
 DROP DATABASE IF EXISTS `drugbank`;
-CREATE DATABASE `drugbank`;
+CREATE DATABASE `drugbank` DEFAULT CHARACTER SET utf8;
 USE `drugbank`;
 
 CREATE TABLE `drugbank`.`status` (

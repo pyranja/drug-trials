@@ -1,6 +1,6 @@
 -- therapeutic targets database (ttd)
 DROP DATABASE IF EXISTS `ttd`;
-CREATE DATABASE `ttd`;
+CREATE DATABASE `ttd` DEFAULT CHARACTER SET utf8;
 USE `ttd`;
 
 CREATE TABLE `ttd`.`status` (

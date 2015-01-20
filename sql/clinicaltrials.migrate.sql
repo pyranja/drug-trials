@@ -1,6 +1,6 @@
 -- clinicaltrials.gov database
 DROP DATABASE IF EXISTS `clinicaltrials`;
-CREATE DATABASE `clinicaltrials`;
+CREATE DATABASE `clinicaltrials` DEFAULT CHARACTER SET utf8;
 USE `clinicaltrials`;
 
 -- define schema
