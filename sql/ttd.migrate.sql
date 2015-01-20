@@ -8,7 +8,8 @@ CREATE TABLE `ttd`.`status` (
   `name` VARCHAR(20) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE (`name`)
-);
+) ENGINE=InnoDB;
+
 CREATE TABLE `ttd`.`drug` (
   `id`         INTEGER      NOT NULL,
   `designator` VARCHAR(11)  NOT NULL,
@@ -18,14 +19,14 @@ CREATE TABLE `ttd`.`drug` (
   PRIMARY KEY (`id`),
   UNIQUE (`designator`),
   FOREIGN KEY (`status_id`) REFERENCES `status` (`id`)
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE `ttd`.`alias` (
   `drug_id` INTEGER      NOT NULL,
   `value`   VARCHAR(255) NOT NULL,
   PRIMARY KEY (`drug_id`, `value`),
   FOREIGN KEY (`drug_id`) REFERENCES `drug` (`id`)
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE `ttd`.`interaction` (
   `drug_id` INTEGER      NOT NULL,
@@ -33,7 +34,7 @@ CREATE TABLE `ttd`.`interaction` (
   `action`  VARCHAR(100) DEFAULT NULL,
   PRIMARY KEY (`drug_id`, `target`),
   FOREIGN KEY (`drug_id`) REFERENCES `drug` (`id`)
-);
+) ENGINE=InnoDB;
 
 -- common static data
 INSERT INTO `ttd`.`status` VALUES (1, 'approved'), (2, 'experimental'), (3, 'not-approved');
@@ -44,7 +45,7 @@ CREATE TABLE translate_group (
   status_id SMALLINT NOT NULL,
   group_id BIGINT NOT NULL,
   PRIMARY KEY (group_id)
-);
+) ENGINE=InnoDB;
 
 INSERT INTO translate_group (status_id, group_id)
   SELECT 2 AS status_id, group_id

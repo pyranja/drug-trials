@@ -8,7 +8,8 @@ CREATE TABLE `drugbank`.`status` (
   `name` VARCHAR(20) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE (`name`)
-);
+) ENGINE=InnoDB;
+
 CREATE TABLE `drugbank`.`drug` (
   `id`         INTEGER      NOT NULL,
   `designator`  VARCHAR(11)  NOT NULL,
@@ -21,14 +22,15 @@ CREATE TABLE `drugbank`.`drug` (
   PRIMARY KEY (`id`),
   UNIQUE (`designator`),
   FOREIGN KEY (`status_id`) REFERENCES `status` (`id`)
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE `drugbank`.`alias_type` (
   `id`   SMALLINT    NOT NULL,
   `name` VARCHAR(20) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE (`name`)
-);
+) ENGINE=InnoDB;
+
 CREATE TABLE `drugbank`.`alias` (
   `drug_id` INTEGER      NOT NULL,
   `type_id` SMALLINT     NOT NULL,
@@ -36,7 +38,7 @@ CREATE TABLE `drugbank`.`alias` (
   PRIMARY KEY (`drug_id`, `type_id`, `value`),
   FOREIGN KEY (`drug_id`) REFERENCES drug (`id`),
   FOREIGN KEY (`type_id`) REFERENCES alias_type (`id`)
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE `drugbank`.`interaction` (
   `drug_id`            INTEGER      NOT NULL,
@@ -46,7 +48,7 @@ CREATE TABLE `drugbank`.`interaction` (
   `is_pharmacological` BOOLEAN      DEFAULT NULL,
   PRIMARY KEY (`drug_id`, `gene_symbol`, `gene_taxonomy`),
   FOREIGN KEY (`drug_id`) REFERENCES `drug` (`id`)
-);
+) ENGINE=InnoDB;
 
 -- common static data
 INSERT INTO `drugbank`.`status`

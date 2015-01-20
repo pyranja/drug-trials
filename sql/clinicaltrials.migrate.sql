@@ -18,20 +18,20 @@ CREATE TABLE `clinicaltrials`.`trial` (
   `phase`          VARCHAR(25)  NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE (`designator`)
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE `clinicaltrials`.`trial_drug` (
   `trial_id`        INTEGER NOT NULL,
   `drug_designator` VARCHAR(11),
   PRIMARY KEY (`trial_id`, `drug_designator`),
   FOREIGN KEY (`trial_id`) REFERENCES `trial` (`id`)
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE `clinicaltrials`.`condition` (
   `id`   INTEGER      NOT NULL,
   `name` VARCHAR(200) NOT NULL,
   PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE `clinicaltrials`.`trial_condition`
 (
@@ -40,14 +40,14 @@ CREATE TABLE `clinicaltrials`.`trial_condition`
   PRIMARY KEY (`trial_id`, `condition_id`),
   FOREIGN KEY (`trial_id`) REFERENCES `trial` (`id`),
   FOREIGN KEY (`condition_id`) REFERENCES `condition` (`id`)
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE `clinicaltrials`.`intervention` (
   `id`   INTEGER      NOT NULL,
   `name` VARCHAR(160) NOT NULL,
   `type` VARCHAR(100) NOT NULL,
   PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE `clinicaltrials`.`trial_intervention` (
   `trial_id`        INTEGER NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE `clinicaltrials`.`trial_intervention` (
   PRIMARY KEY (`trial_id`, `intervention_id`),
   FOREIGN KEY (`trial_id`) REFERENCES `trial` (`id`),
   FOREIGN KEY (`intervention_id`) REFERENCES `intervention` (`id`)
-);
+) ENGINE=InnoDB;
 
 -- migrate from trials database
 INSERT INTO clinicaltrials.trial (id, designator, title, official_title, summary, start_date, end_date, sponsor, type, status, phase)
