@@ -7,6 +7,10 @@ mysql_password=
 # commands
 
 clean:
+	-rm -r ./target/drug-trials
+	-rm ./target/drug-trials.tgz
+
+purge:
 	-rm -r ./target
 
 init:
@@ -15,6 +19,7 @@ init:
 all: clean import convert package
 
 package: clinicaltrials ttd drugbank
+	cp -r ./doc ./target/drug-trials
 	tar -czvf ./target/drug-trials.tgz --directory=./target drug-trials/
 
 clinicaltrials ttd drugbank: init
