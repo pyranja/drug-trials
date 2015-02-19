@@ -1,14 +1,29 @@
-# drug-trial dataset
+# Copyright 2015 Chris Borckholder
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 # properties
 mysql_user=root
 mysql_password=
 
+VERSION=3.0.0
+MODULES = clinicaltrials ttd drugbank
+
 # commands
 
 clean:
 	-rm -r ./target/drug-trials
-	-rm ./target/drug-trials.tgz
+	-rm ./target/drug-trials*.tgz
 
 purge:
 	-rm -r ./target
@@ -18,11 +33,13 @@ init:
 
 all: clean import convert package
 
-package: clinicaltrials ttd drugbank
+package: $(MODULES)
 	cp -r ./doc ./target/drug-trials
-	tar -czvf ./target/drug-trials.tgz --directory=./target drug-trials/
+	cp ./README.md ./target/drug-trials/README
+	cp ./LICENSE ./target/drug-trials/LICENSE
+	tar -czvf ./target/drug-trials-${VERSION}.tgz --directory=./target drug-trials/
 
-clinicaltrials ttd drugbank: init
+$(MODULES): init
 	-mkdir ./target/drug-trials
 	mysqldump --user=${mysql_user} --password=${mysql_password} --result-file=./target/drug-trials/$@.schema.sql --no-data --databases $@
 	mysqldump --user=${mysql_user} --password=${mysql_password} --result-file=./target/drug-trials/$@.full.sql --complete-insert --single-transaction --databases $@
