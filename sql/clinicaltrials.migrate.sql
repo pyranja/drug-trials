@@ -25,7 +25,6 @@ CREATE TABLE `clinicaltrials`.`trial` (
   `designator`     VARCHAR(11)  NOT NULL,
   `title`          VARCHAR(300) NOT NULL,
   `official_title` VARCHAR(600),
-  `summary`        TEXT,
   `start_date`     DATE,
   `end_date`       DATE,
   `sponsor`        VARCHAR(150) NOT NULL,
@@ -74,8 +73,17 @@ CREATE TABLE `clinicaltrials`.`trial_intervention` (
 ) ENGINE=InnoDB;
 
 -- migrate from trials database
-INSERT INTO clinicaltrials.trial (id, designator, title, official_title, summary, start_date, end_date, sponsor, type, status, phase)
-  SELECT study_id, clinicaltrials_gov_id, title, official_title, summary, start_date, end_date,
+-- only port data of trials, which have a drug link : .. WHERE EXISTS (SELECT * FROM clinicaltrials.trial_drug WHERE **study_id** = clinicaltrials.trial_drug.trial_id)
+
+-- dump trials with drug link to temp table to work around foreign key restrictions
+CREATE TEMPORARY TABLE clinicaltrials.included_trials LIKE clinicaltrials.trial_drug;
+INSERT INTO clinicaltrials.included_trials (trial_id, drug_designator)
+  SELECT DISTINCT study_fid, drug_id
+  FROM trials.intervention_to_drug INNER JOIN trials.study_intervention ON (trials.intervention_to_drug.intervention_id = trials.study_intervention.intervention_fid)
+;
+
+INSERT INTO clinicaltrials.trial (id, designator, title, official_title, start_date, end_date, sponsor, type, status, phase)
+  SELECT study_id, clinicaltrials_gov_id, title, official_title, start_date, end_date,
     sponsor_name, type, `status`, `phase`
   FROM trials.study
     INNER JOIN trials.clinicaltrials_gov
@@ -83,22 +91,43 @@ INSERT INTO clinicaltrials.trial (id, designator, title, official_title, summary
     INNER JOIN trials.sponsor ON (trials.study.sponsor_fid = trials.sponsor.sponsor_id)
     INNER JOIN trials.type ON (trials.study.type_fid = trials.type.type_id)
     INNER JOIN trials.status ON (trials.study.status_fid = trials.status.status_id)
-    INNER JOIN trials.phase ON (trials.study.phase_fid = trials.phase.phase_id);
-
-INSERT INTO clinicaltrials.`condition` (id, name)
-  SELECT condition_id, `condition`
-  FROM trials.`condition`;
-
-INSERT INTO clinicaltrials.trial_condition (trial_id, condition_id)
-  SELECT study_fid, condition_fid FROM trials.study_condition;
-
-INSERT INTO clinicaltrials.intervention (id, name, type)
-  SELECT intervention_id, `name`, intervention_type
-  FROM trials.intervention INNER JOIN trials.intervention_type ON (trials.intervention.intervention_type_fid = trials.intervention_type.intervention_type_id);
-
-INSERT INTO clinicaltrials.trial_intervention (trial_id, intervention_id)
-  SELECT study_fid, intervention_fid FROM trials.study_intervention;
+    INNER JOIN trials.phase ON (trials.study.phase_fid = trials.phase.phase_id)
+  WHERE EXISTS (SELECT * FROM clinicaltrials.included_trials WHERE clinicaltrials.included_trials.trial_id = trials.study.study_id)
+;
 
 INSERT INTO clinicaltrials.trial_drug (trial_id, drug_designator)
   SELECT DISTINCT study_fid, drug_id
-  FROM trials.intervention_to_drug INNER JOIN trials.study_intervention ON (trials.intervention_to_drug.intervention_id = trials.study_intervention.intervention_fid);
+  FROM trials.intervention_to_drug INNER JOIN trials.study_intervention ON (trials.intervention_to_drug.intervention_id = trials.study_intervention.intervention_fid)
+;
+
+INSERT INTO clinicaltrials.`condition` (id, name)
+  SELECT condition_id, `condition`
+  FROM trials.`condition`
+;
+
+INSERT INTO clinicaltrials.trial_condition (trial_id, condition_id)
+  SELECT study_fid, condition_fid FROM trials.study_condition
+  WHERE EXISTS (SELECT * FROM clinicaltrials.trial_drug WHERE clinicaltrials.trial_drug.trial_id = trials.study_condition.study_fid)
+;
+
+INSERT INTO clinicaltrials.intervention (id, name, type)
+  SELECT intervention_id, `name`, intervention_type
+  FROM trials.intervention
+    INNER JOIN trials.intervention_type ON (trials.intervention.intervention_type_fid = trials.intervention_type.intervention_type_id)
+;
+
+INSERT INTO clinicaltrials.trial_intervention (trial_id, intervention_id)
+  SELECT study_fid, intervention_fid FROM trials.study_intervention
+  WHERE EXISTS (SELECT * FROM clinicaltrials.trial_drug WHERE clinicaltrials.trial_drug.trial_id = trials.study_intervention.study_fid)
+;
+
+-- prune conditions and interventions without study
+-- may be present, as conditions and interventions table are copied from source
+
+DELETE FROM clinicaltrials.`condition`
+  WHERE NOT EXISTS (SELECT * FROM clinicaltrials.trial_condition WHERE clinicaltrials.trial_condition.condition_id = clinicaltrials.`condition`.id)
+;
+
+DELETE FROM clinicaltrials.intervention
+  WHERE NOT EXISTS (SELECT * FROM clinicaltrials.trial_intervention WHERE clinicaltrials.trial_intervention.intervention_id = clinicaltrials.intervention.id)
+;
