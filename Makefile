@@ -12,47 +12,61 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# properties
 mysql_user=root
 mysql_password=
 
-VERSION=3.0.0
-MODULES = clinicaltrials ttd drugbank
+VERSION = SNAPSHOT
 
-# commands
+MODULES = clinicaltrials ttd drugbank
+SOURCE_DIR = source
+BUILD_DIR = target
+
+## package distributions ##
+
+assembly: convert $(MODULES)
+	./assembly.sh "$(VERSION)" "$(BUILD_DIR)"
+
+$(MODULES): %: $(BUILD_DIR)/drug-trials/%.schema.sql $(BUILD_DIR)/drug-trials/%.full.sql
+
+$(BUILD_DIR)/drug-trials/%.schema.sql: $(BUILD_DIR)/drug-trials/
+	mysqldump --user=${mysql_user} --password=${mysql_password} --result-file=$@ --no-data --databases $*
+
+$(BUILD_DIR)/drug-trials/%.full.sql: $(BUILD_DIR)/drug-trials/
+	mysqldump --user=${mysql_user} --password=${mysql_password} --result-file=$@ --complete-insert --single-transaction --databases $*
+
+$(BUILD_DIR)/drug-trials/:
+	@-mkdir -p $@
 
 clean:
-	-rm -r ./target/drug-trials
-	-rm ./target/drug-trials*.tgz
+	@-rm -r ./$(BUILD_DIR)
 
-purge:
-	-rm -r ./target
+.PHONY: assembly $(MODULES) clean
 
-init:
-	-mkdir target
+## apply conversion ##
 
-all: clean import convert package
+convert: import ${SOURCE_DIR}/.convert
 
-package: $(MODULES)
-	cp -r ./doc ./target/drug-trials
-	cp ./README.md ./target/drug-trials/README
-	cp ./LICENSE ./target/drug-trials/LICENSE
-	tar -czvf ./target/drug-trials-${VERSION}.tgz --directory=./target drug-trials/
-
-$(MODULES): init
-	-mkdir ./target/drug-trials
-	mysqldump --user=${mysql_user} --password=${mysql_password} --result-file=./target/drug-trials/$@.schema.sql --no-data --databases $@
-	mysqldump --user=${mysql_user} --password=${mysql_password} --result-file=./target/drug-trials/$@.full.sql --complete-insert --single-transaction --databases $@
-
-convert:
+${SOURCE_DIR}/.convert: ./sql/*.migrate.sql
 	cat ./sql/*.migrate.sql | mysql --user=${mysql_user} --password=${mysql_password}
+	@touch $@
 
-import: target/emergentec
-	cat ./target/emergentec/*.sql | mysql --user=${mysql_user} --password=${mysql_password}
+.PHONY: convert
+
+## import source schema ##
+
+import: $(SOURCE_DIR)/.import
+
+$(SOURCE_DIR)/.import: $(SOURCE_DIR)/emergentec.tar.gz
+	tar -xzf ./$(SOURCE_DIR)/emergentec.tar.gz --directory=./$(SOURCE_DIR)
+	cat ./$(SOURCE_DIR)/emergentec/*.sql | mysql --user=${mysql_user} --password=${mysql_password}
 	cat ./sql/move-emergentec.sql | mysql --user=${mysql_user} --password=${mysql_password}
+	@touch $@
 
-target/emergentec: target/emergentec.tar.gz
-	tar -xzvf ./target/emergentec.tar.gz --directory=./target
+$(SOURCE_DIR)/emergentec.tar.gz:
+	@-mkdir $(SOURCE_DIR)
+	curl --fail --silent --output ./$(SOURCE_DIR)/emergentec.tar.gz --url http://elvira.par.univie.ac.at/archiva/repository/internal/at/ac/univie/isc/emergentec-dataset/1.0.0/emergentec-dataset-1.0.0.tgz
 
-target/emergentec.tar.gz: init
-	curl --fail --silent --output ./target/emergentec.tar.gz --url http://elvira.par.univie.ac.at/archiva/repository/internal/at/ac/univie/isc/emergentec-dataset/1.0.0/emergentec-dataset-1.0.0.tgz
+purge: clean
+	@-rm -r ./$(SOURCE_DIR)
+
+.PHONY: import purge
