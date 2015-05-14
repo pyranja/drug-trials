@@ -17,7 +17,7 @@
 #---------------------------------------------------------------------------------------------------
 # package drug-trials distribution
 #---------------------------------------------------------------------------------------------------
-set -e
+set -ev
 
 VERSION=${1:?"version argument missing"}
 BUILD_DIR=${2:?"build directory argument missing"}

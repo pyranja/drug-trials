@@ -15,11 +15,11 @@
 mysql_user=root
 mysql_password=
 
-VERSION = SNAPSHOT
+VERSION=SNAPSHOT
 
-MODULES = clinicaltrials ttd drugbank
-SOURCE_DIR = source
-BUILD_DIR = target
+MODULES=clinicaltrials ttd drugbank
+SOURCE_DIR=source
+BUILD_DIR=target
 
 ## package distributions ##
 

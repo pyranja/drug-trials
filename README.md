@@ -1,11 +1,12 @@
-# drug-trial dataset
+# drug-trial dataset [![License](https://img.shields.io/badge/license-Apache--2-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0) [![Build Status](https://travis-ci.org/pyranja/drug-trials.svg)](https://travis-ci.org/pyranja/drug-trials) [![Download](https://api.bintray.com/packages/pyranja/generic/drug-trials/images/download.svg)](https://bintray.com/pyranja/generic/drug-trials/_latestVersion)
 
 Three intersecting MySQL test datasets extracted from real sources ([Clinical Trials][ct],
 [Drug Bank][db] and the [Therapeutic Target Database][ttd]). Each dataset is generated based on a
 partial snapshot of the source, taken at an unspecified point in time.
 They are intended for testing purposes only and are not up to date, complete or correct.
 
-The migration scripts are available in the [github repository][repo].
+Distributions are available as [tarball][tgz] and [`.rpm`][rpm]. Sources of the migration scripts
+are hosted on [github][repo].
 
 ## Terms and Conditions
 
@@ -53,3 +54,5 @@ It is not intended as a substitute for professional medical advice, diagnosis or
 [db]: http://www.drugbank.ca/ "DrugBank"
 [ttd]: http://bidd.nus.edu.sg/group/cjttd/ "Therapeutic Target Database"
 [repo]: https://github.com/pyranja/drug-trials "source repository"
+[tgz]: https://bintray.com/pyranja/generic/drug-trials
+[rpm]: https://bintray.com/pyranja/rpm/drug-trials

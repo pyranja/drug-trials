@@ -1,0 +1,33 @@
+# drug-trials ci
+language: bash
+
+sudo: false
+services: mysql
+addons:
+  apt:
+    packages:
+    - build-essential
+    - rpm
+env:
+  global: # bintray api key
+  - secure: Kuw04NqUGSHqQMsnROxvMyZXsQ3yISSmI00pDMjeETrwIvR1RwE8c35rwwPboRLgm8KwHO+wwYZJxvfcPtp9csVxf2MZ9L3SRx9/X+mPWo2CgmKJseES0c/tny/LJV1jV5E0AsOU0dhSesScgafLqTYgMQF4naRSaS/iS3YmkSM=
+  - 'BUILD_DIR=target'
+
+install:
+- gem install fpm
+- make import
+
+script: make VERSION=${TRAVIS_TAG:-"SNAPSHOT.${TRAVIS_BUILD_NUMBER}"}
+
+# bintray deployment
+after_success: ./publish.sh
+
+deploy: # github releases
+  provider: releases
+  api_key:
+    secure: UR9Lk6O15RE2W9CcL9nKC1Vw4qWTs9JEV4oe5E1geajji4BVDtuxXN8pgj2M1nCvAcnNsz/9YFFb2ZqvYgvEPnefLyCdILt0t38QapYkkcEtKBto0/1NtbXkCWyNVQf32tM1RJzbKRCXPX2zaw+2U5DCTtRihukh3gyvdRhHBAw=
+  skip_cleanup: true
+  file: target/drug-trials.tgz
+  on:
+    tags: true
+    repo: pyranja/drug-trials
