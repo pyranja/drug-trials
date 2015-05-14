@@ -28,7 +28,7 @@ cp ./LICENSE ./${BUILD_DIR}/drug-trials/LICENSE
 
 tar -czf ./${BUILD_DIR}/drug-trials.tgz --directory=./${BUILD_DIR}/ drug-trials/
 
-fpm --name 'drug-trial' --version "${VERSION}" --iteration '1' --description 'relational test data' \
+fpm --name 'drug-trials' --version "${VERSION}" --iteration '1' --description 'relational test data' \
   --maintainer 'chris.borckholder@gmail.com' --vendor 'Chris Borckholder' --license 'Apache License, Version 2' --url 'https://github.com/pyranja/drug-trials' \
-  --architecture 'all' --force --package "./${BUILD_DIR}/drug-trials.rpm" \
+  --architecture 'all' --rpm-auto-add-directories --force --package "./${BUILD_DIR}/drug-trials.rpm" \
   -C "${BUILD_DIR}/" -t 'rpm' -s 'dir' 'drug-trials/=/opt/'
